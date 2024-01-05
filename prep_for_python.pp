@@ -28,4 +28,8 @@ exec {'compile_python':
     creates => "/usr/local/bin/python3.11",
     require => [Exec['compile_and_create_python_make_file'], Package['gcc'], Package['make']]
 }
-
+exec { 'create_python_symlink':
+    command => "/bin/ln -s /usr/local/bin/python3.11 /usr/local/bin/python",
+    creates => "/usr/local/bin/python",
+    require => Exec['compile_python'],
+}
