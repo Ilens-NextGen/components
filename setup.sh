@@ -8,8 +8,12 @@ sudo apt update && sudo apt upgrade -y
 sudo apt-get install -y ruby ruby-augeas ruby-shadow puppet
 sudo gem install puppet-lint
 
-# Install python 3.11.5 if it doesn't exist as well as pip and set it to be python3
-sudo puppet apply setup.pp
+# Recommended to use python3. Run this to set it up if the server doesn't have python
+sudo puppet apply prep_for_python.pp
+sudo /tmp/"Python-3.11.5"/configure --enable-optimizations && sudo make altinstall
+sudo ln -s /usr/local/bin/python3.11 /usr/bin/python
+
+
+# Set up the environment
 
 # create the virtual environment for the project development
-
