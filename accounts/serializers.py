@@ -49,15 +49,14 @@ class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'username', 'first_name', 'id',
-                  'last_name', 'bio', 'profile_picture', 'created_at']
+                  'last_name', 'created_at']
         read_only_fields = ['id']
         
 class UserManageSerializer(ModelSerializer):    
     class Meta:
         model = User
         fields = ['email', 'username', 'first_name', 'id',
-                  'last_name', 'bio', 'profile_picture', 'created_at',
-                  'phone', 'address', 'city', 'state', 'country', 'zip_code'
+                  'last_name', 'created_at',
                 ]
         read_only_fields = ['id', 'created_at']
 
