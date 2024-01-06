@@ -1,13 +1,11 @@
 exec { 'create virtualenv':
-  command => '/usr/bin/python3 -m venv env',
-  cwd     => '/path/to/your/directory',
-  creates => '/path/to/your/directory/env',
+  command => '/usr/bin/python -m venv ilens',
+  creates => '/home/ubuntu/projects/components/ilens',
   
 }
 
 exec { 'install requirements':
-  command => '/path/to/your/directory/env/bin/pip install -r requirements.txt',
-  cwd     => '/path/to/your/directory',
+  command => '/home/ubuntu/projects/components/ilens/bin/pip install -r requirements.txt',
   require => Exec['create virtualenv'],
-  onlyif  => 'test -f /path/to/your/directory/requirements.txt',
+  onlyif  => '/usr/bin/test -f /home/ubuntu/projects/components/requirements.txt',
 }
