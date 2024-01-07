@@ -24,27 +24,32 @@ class ImageProcessorConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         if text_data:
-            text_data_json = json.loads(text_data)
-            data_type = text_data_json["type"]
-            if data_type == "chat":
-                message = text_data_json["message"]
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'message': message
-                    }
-                )
+            await self.handle_text_data(text_data)
         elif bytes_data:
-            stream = bytes_data
+            await self.handle_binary_data(bytes_data)
+
+    async def handle_text_data(self, text_data):
+        text_data_json = json.loads(text_data)
+        data_type = text_data_json["type"]
+        if data_type == "chat":
+            message = text_data_json["message"]
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    'type': 'stream_message',
-                    'stream': stream,
-                    'stream_type': 'mp4'
+                    'type': 'chat_message',
+                    'message': message
                 }
             )
+    async def handle_binary_data(self, bytes_data):
+        stream = bytes_data
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'stream_message',
+                'stream': stream,
+                'stream_type': 'mp4'
+            }
+        )
 
     async def chat_message(self, event):
         message = event["message"]

@@ -1,14 +1,11 @@
 django==5.0.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
-django-rest-swagger==2.2.0
 drf-yasg==1.21.7
 channels==4.0.0
 channels-redis==4.1.0
 daphne==4.0.0
-redis=5.0.1
-aiohttp==3.9.1
-aiortc==1.6.0
+redis==5.0.1
 opencv-python==4.9.0.80
 imageio==2.33.1
 imageio-ffmpeg==0.4.9
