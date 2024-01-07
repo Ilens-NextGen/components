@@ -2,3 +2,6 @@ ilens/
 __pycache__
 db.sqlite3
 env/
+node_modules/
+dist/
+.parcel-cache/
