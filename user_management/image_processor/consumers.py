@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from .clarifai_processor import AsyncImageProcessor
+from .clarifai_processor import AsyncVideoProcessor
 import asyncio as asy
 class ImageProcessorConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -14,7 +14,7 @@ class ImageProcessorConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
-        self.cp = AsyncImageProcessor()
+        self.cp = AsyncVideoProcessor()
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -66,8 +66,7 @@ class ImageProcessorConsumer(AsyncWebsocketConsumer):
     async def stream_message(self, event):
         stream = event["stream"]
         stream_type = event["stream_type"]
-        print(f"Got a {stream_type}")
-        result = await asy.create_task(self.cp.video_to_grid())
+        result = await self.cp.process_video(stream, 4)
         await self.send(text_data=json.dumps({
             "stream": 'Successfully received stream'
-            }))
+        }))
