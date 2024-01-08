@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from .clarifai_processor import save_binary_to_file
+from .clarifai_processor import AsyncImageProcessor
+import asyncio as asy
 class ImageProcessorConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.type = self.scope["url_route"]["kwargs"]["type"]
@@ -13,6 +14,7 @@ class ImageProcessorConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
+        self.cp = AsyncImageProcessor()
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -24,27 +26,32 @@ class ImageProcessorConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         if text_data:
-            text_data_json = json.loads(text_data)
-            data_type = text_data_json["type"]
-            if data_type == "chat":
-                message = text_data_json["message"]
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'chat_message',
-                        'message': message
-                    }
-                )
+            await self.handle_text_data(text_data)
         elif bytes_data:
-            stream = bytes_data
+            await self.handle_binary_data(bytes_data)
+
+    async def handle_text_data(self, text_data):
+        text_data_json = json.loads(text_data)
+        data_type = text_data_json["type"]
+        if data_type == "chat":
+            message = text_data_json["message"]
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    'type': 'stream_message',
-                    'stream': stream,
-                    'stream_type': 'mp4'
+                    'type': 'chat_message',
+                    'message': message
                 }
             )
+    async def handle_binary_data(self, bytes_data):
+        stream = bytes_data
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'stream_message',
+                'stream': stream,
+                'stream_type': 'mp4'
+            }
+        )
 
     async def chat_message(self, event):
         message = event["message"]
@@ -60,7 +67,7 @@ class ImageProcessorConsumer(AsyncWebsocketConsumer):
         stream = event["stream"]
         stream_type = event["stream_type"]
         print(f"Got a {stream_type}")
-        save_binary_to_file(stream, stream_type)
+        result = await asy.create_task(self.cp.video_to_grid())
         await self.send(text_data=json.dumps({
             "stream": 'Successfully received stream'
             }))
