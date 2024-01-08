@@ -68,13 +68,13 @@ class AsyncImageProcessor:
             cv2.imwrite(output_name, image)
         return output_name
 
-    async def video_to_grid(self, video, show, max_frames=4):
-        frames, width, height = await self.convert_videos_to_frames(video, max_frames)
+    async def video_to_grid(self, video, data_type, show, max_frames=4):
+        frames, width, height = await self.convert_videos_to_frames(video, data_type, max_frames)
         rows, cols = await self.calculate_grid_positions(len(frames), width, height)
         image_grid = await self.convert_frames_to_grid(frames, rows, cols)
         return await self.save_image_grid(image_grid, show)
 
-    async def open_video_to_cv(
+    async def convert_videos_to_frames(
         self, bytes_data: bytes, type: str, max_frames: Optional[int] = 4
     ) -> Tuple[List[np.ndarray], int, int]:
         nparr = np.frombuffer(bytes_data, np.uint8)
