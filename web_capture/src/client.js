@@ -1,4 +1,5 @@
-const baseUrl = "wss://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev/ws";
+// const baseUrl = "wss://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev/ws";
+const baseUrl = "ws://localhost:8000/ws";
 const client = new WebSocket(`${baseUrl}/stream/lobby/`); // this is the url of my codespace
 
 client.onopen = () => {
