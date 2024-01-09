@@ -1,22 +1,22 @@
 import socketio
 from django.conf import settings
-async_mode = 'gevent'
-
-sio = socketio.Server(
-    async_mode=async_mode, 
+sio = socketio.AsyncServer(
+    async_mode="asgi",
     cors_allowed_origins=settings.CORS_ALLOWED_ORIGINS
 )
 
+socketio_app = socketio.ASGIApp(sio)
+
 @sio.on('connect')
-def connect(sid, environ):
+async def connect(sid, environ):
     print('connect ', sid)
 
 @sio.on('disconnect')
-def disconnect(sid):
+async def disconnect(sid):
     print('disconnect ', sid)
 
 @sio.on('clip')
-def clip(sid, timestamp, blob):
+async def clip(sid, timestamp, blob):
     # create a file with the timestamp as the name
     # save the blob to the file
     # send the file to the model

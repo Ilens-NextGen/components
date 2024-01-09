@@ -26,14 +26,14 @@ SECRET_KEY = 'django-insecure-5#=4(z6zrr1b+s$e!@q$6)34qwm^&cn_t5wh$0ugi09re^6@#-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://laughing-computing-machine-gj696v7xvxw2wpw6-1234.app.github.dev', 'https://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev']
+CORS_ALLOWED_ORIGINS = ['https://laughing-computing-machine-gj696v7xvxw2wpw6-1234.app.github.dev', 'localhost', '127.0.0.1']
 
 # Application definition
 
 INSTALLED_APPS = [
-    # 'daphne',
-    # "channels",
+    'daphne',  # Comment if you want to run wsgi
+    "channels", # Comment if you want to run wsgi
     'accounts',
     'image_processor',
     'django.contrib.admin',
@@ -76,9 +76,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+# WSGI_APPLICATION = 'core.wsgi.application'
 
-# ASGI_APPLICATION = "core.asgi.application"
+ASGI_APPLICATION = "core.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 

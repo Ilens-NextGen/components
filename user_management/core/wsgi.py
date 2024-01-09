@@ -1,3 +1,8 @@
+"""WSGI config for a server that supports websockets. To use
+go to settings.py and comment 
+    1. `ASGI_APPLICATION` and uncomment `WSGI_APPLICATION`
+    2. Comment out `daphne` and `channels` in `INSTALLED_APPS`
+"""
 import os
 import socketio
 from django.core.wsgi import get_wsgi_application
