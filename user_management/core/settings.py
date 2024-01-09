@@ -34,7 +34,6 @@ CORS_ALLOWED_ORIGINS = ['https://laughing-computing-machine-gj696v7xvxw2wpw6-123
 INSTALLED_APPS = [
     'daphne',  # Comment if you want to run wsgi
     "channels", # Comment if you want to run wsgi
-    'accounts',
     'image_processor',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,7 +44,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
-    'drf_yasg'
+    'drf_yasg',
+    
+    # My apps
+    'accounts',
+    'streamer'
 ]
 
 MIDDLEWARE = [
