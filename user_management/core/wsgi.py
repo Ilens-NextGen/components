@@ -1,16 +1,20 @@
-"""
-WSGI config for core project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
-"""
-
 import os
-
+import socketio
 from django.core.wsgi import get_wsgi_application
+from gevent import pywsgi
+from geventwebsocket.handler import WebSocketHandler
+from streamer.views import sio
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
-application = get_wsgi_application()
+# Django WSGI application
+django_app = get_wsgi_application()
+
+# Socket.IO server
+sio_app = socketio.WSGIApp(sio, django_app)
+
+# Combine Django and Socket.IO
+application = pywsgi.WSGIServer(("", 8000), sio_app, handler_class=WebSocketHandler)
+
+# Uncomment the line below if you want to serve the application using gevent's server
+application.serve_forever()
