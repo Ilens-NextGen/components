@@ -12,3 +12,4 @@ imageio-ffmpeg==0.4.9
 isort==5.13.2
 black==23.12.1
 pillow==10.2.0
+clarifai==9.11.1
