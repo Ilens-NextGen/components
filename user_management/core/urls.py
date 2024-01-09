@@ -19,7 +19,7 @@ schema_view = get_schema_view(
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
-    # url='https://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev' # comment this line. It's for my codespace
+    url='https://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev' # comment this line. It's for my codespace
 )
 
 urlpatterns = [
@@ -29,3 +29,4 @@ urlpatterns = [
     path('auth/', include('accounts.urls')),
     path('user', UserView.as_view(), name='user'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
