@@ -1,5 +1,5 @@
 import $ from "jquery";
-import client from "./client";
+import { client, chatClient } from "./client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
@@ -124,7 +124,7 @@ async function startRecording() {
   }
   mediaRecorder.onstop = () => {
     let blob = new Blob(chunks, { 'type': 'video/mp4;' });
-    client.emit("clip", Date.now(), blob);
+    client.send(blob);
     chunks = [];
     let videoURL = window.URL.createObjectURL(blob);
     $("#webcam-recording").attr("src", videoURL);
@@ -180,6 +180,11 @@ function takepicture() {
     clearphoto();
   }
 }
+chatClient.onmessage = (event) => {
+  let result = JSON.parse(event.data);
+  console.log("result", result);
+  $("#chat-log").append(`<li class='ai'>${result.ai}</li>`);
+};
 $(() => {
   video = $("#video").get(0);
   canvas = $("#canvas").get(0);
@@ -225,13 +230,13 @@ $(() => {
     ev.preventDefault();
   });
 
-  $("")
   $("#chat-message-submit").on("click", function (ev) {
     let message = $("#chat-message-input").val();
     $("#chat-log").append(`<li class='user'>${message}</li>`);
     if (message)
-      client.emit("question", message);
+      chatClient.send(JSON.stringify({"type":"chat", "message": message}));
     ev.preventDefault();
   });
+
   startup();
 });

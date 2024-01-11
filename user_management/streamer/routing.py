@@ -1,7 +1,7 @@
 # chat/routing.py
 """Ignore for now. In the future this may be used as a fallback for the
 socketio connections in case simply specifying websocket as the protocol isn't enough"""
-from django.conf.urls import re_path
+from django.urls import re_path
 
 from .consumers import socketio_app
 

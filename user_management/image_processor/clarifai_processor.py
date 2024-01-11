@@ -5,6 +5,7 @@ from PIL import Image
 import imageio.v3 as iio
 from typing import List, Optional, Tuple
 from .env_clarifai import *
+from io import BytesIO
 
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
@@ -15,7 +16,7 @@ class AsyncVideoProcessor:
         # Initialize any required variables here
         pass
 
-    async def process_video(self, video_bytes: bytes, max_frame: Optional[int]=None, grid=True) -> List[np.ndarray]:
+    async def process_video(self, video_bytes: bytes, max_frame: Optional[int]=4, grid=True) -> List[np.ndarray]:
         try:
             # Convert video bytes to frames
             frames, fps = await asyncio.to_thread(self._bytes_to_frames, video_bytes)
@@ -66,12 +67,14 @@ class AsyncVideoProcessor:
             grid_image[row * height:(row + 1) * height, col * width:(col + 1) * width] = frame
         return grid_image
 
-    async def convert_result_image_arrays_to_bytes(self, images: List[np.ndarray]) -> bytes:
+    def convert_result_image_arrays_to_bytes(self, images: List[np.ndarray]) -> bytes:
+        res = []
         for image in images:
             image_pil = Image.fromarray(image)
             with BytesIO() as buffer:
                 image_pil.save(buffer, format="PNG")
-                yield (buffer.getvalue())
+                res.append(buffer.getvalue())
+        return res
 
 class AsyncClarifaiImageRecognition:
     def __init__(self):

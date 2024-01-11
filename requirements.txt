@@ -6,13 +6,15 @@ channels==4.0.0
 channels-redis==4.1.0
 daphne==4.0.0
 redis==5.0.1
+isort==5.13.2
+black==23.12.1
+
+# for image processing
+pillow==10.2.0
+clarifai==9.11.1
 opencv-python==4.9.0.80
 imageio==2.33.1
 imageio-ffmpeg==0.4.9
-isort==5.13.2
-black==23.12.1
-pillow==10.2.0
-clarifai==9.11.1
 
 # libraries for socket io
 asgiref
@@ -30,3 +32,5 @@ python-socketio==5.11.0
 simple-websocket==1.0.0
 wsproto==1.2.0 
 zope.event==5.0
+gevent==23.9.1
+gevent-websocket==0.10.1
