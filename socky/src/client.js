@@ -2,8 +2,8 @@ import io from "socket.io-client";
 import $ from "jquery";
 
 
-const client = io("https://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev", {
-    transports: ["websocket", "polling", "flashsocket"],
+const client = io("https://8000-ilensnextgen-components-ay4frb3hdwy.ws-eu107.gitpod.io", {
+    transports: ["websocket", "polling", "flashsocket"]
 });
 
 client.on("connect", () => {

@@ -1,7 +1,6 @@
 
 $version = '3.11.5'
 $download_url = "https://www.python.org/ftp/python/${version}/Python-${version}.tgz"
-
 package { ['gcc', 'make', 'pkg-config', 'build-essential', 'libreadline-dev', 'libncursesw5-dev', 'libssl-dev',  'libsqlite3-dev', 'tk-dev', 'libgdbm-dev', 'libc6-dev', 'libbz2-dev', 'libffi-dev', 'zlib1g-dev']:
     ensure => installed,
 }

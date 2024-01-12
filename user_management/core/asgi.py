@@ -1,5 +1,4 @@
 import os
-import socketio
 from channels.routing import ProtocolTypeRouter
 from django.core.asgi import get_asgi_application
 from streamer.consumers import socketio_app

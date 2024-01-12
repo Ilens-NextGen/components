@@ -4,14 +4,14 @@ import numpy as np
 from PIL import Image
 import imageio.v3 as iio
 from typing import List, Optional, Tuple
-from .env_clarifai import *
+from .env_clarifai import PAT, USER_ID, APP_ID, MODEL_ID, MODEL_VERSION_ID
 from io import BytesIO
 
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 
-class AsyncVideoProcessor:
+class AsyncDeprecatedVideoProcessor:
     def __init__(self):
         # Initialize any required variables here
         pass
@@ -76,6 +76,39 @@ class AsyncVideoProcessor:
                 res.append(buffer.getvalue())
         return res
 
+class AsyncVideoProcessor:
+    """this class is for handling videos to select the best frame for processing
+    """
+    
+    async def process_video(self, video_bytes: bytes) -> List[np.ndarray]:
+        try:
+            frames = await asyncio.to_thread(self._bytes_to_frames, video_bytes)
+            gray_frames = await asyncio.to_thread(self._grays_scale_image, frames)
+            best_frame = await asyncio.to_thread(self._get_sharpest_frame, gray_frames)
+            return cv2.resize(best_frame, (0, 0), fx=0.95, fy=0.95)
+        except Exception as e:
+            print(f"Error processing video: {e}")
+            return None
+
+    def _bytes_to_frames(self, video_bytes: bytes) -> List[np.ndarray]:
+        frames = iio.imread(video_bytes, index=None, format_hint=".mp4")
+        return frames
+
+    def _grays_scale_image(self, frames: List[np.ndarray]) -> List[np.ndarray]:
+        return [cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) for frame in frames]
+
+    def _get_sharpest_frame(self, gray_frames: List[np.ndarray]) -> np.ndarray: 
+        sharpest_frame_index = np.argmax([cv2.Laplacian(gray_frame, cv2.CV_64F).var() for gray_frame in gray_frames])
+        # print(sharpest_frame_index)
+        return gray_frames[sharpest_frame_index]
+
+    def convert_result_image_to_bytes(self, image: np.ndarray) -> bytes:
+        image_pil = Image.fromarray(image)
+        with BytesIO() as buffer:
+            image_pil.save(buffer, format="PNG")
+            return (buffer.getvalue())
+
+
 class AsyncClarifaiImageRecognition:
     def __init__(self):
         self.PAT = PAT
@@ -88,8 +121,8 @@ class AsyncClarifaiImageRecognition:
         self.metadata = ('authorization', 'Key ' + self.PAT),
         self.userDataObject = resources_pb2.UserAppIDSet(user_id=self.USER_ID, app_id=self.APP_ID)
         
-    async def find_all_objects(self, file_bytes: List[bytes]):
-        post_model_outputs_response = stub.PostModelOutputs(
+    async def find_all_objects(self, file_byte: bytes):
+        post_model_outputs_response = self.stub.PostModelOutputs(
         service_pb2.PostModelOutputsRequest(
                 user_app_id=self.userDataObject,
                 model_id=self.MODEL_ID,
@@ -101,10 +134,10 @@ class AsyncClarifaiImageRecognition:
                                 base64=file_byte
                             )
                         )
-                    ) for file_byte in file_bytes
+                    )
                 ]
             ),
-            metadata=metadata
+            metadata=self.metadata
         )
         if post_model_outputs_response.status.code != status_code_pb2.SUCCESS:
             print(post_model_outputs_response.status)
@@ -124,3 +157,5 @@ class AsyncClarifaiImageRecognition:
                 name = concept.name
                 value = round(concept.value, 4)
                 print((f"{name}: {value} BBox: {top_row}, {left_col}, {bottom_row}, {right_col}"))
+
+

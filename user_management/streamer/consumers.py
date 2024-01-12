@@ -2,6 +2,8 @@ import socketio
 from django.conf import settings
 import asyncio
 from random import choice
+from django.dispatch import receiver
+from .signals import finished_frame
 from image_processor.clarifai_processor import (
     AsyncVideoProcessor, AsyncClarifaiImageRecognition
     )
@@ -24,36 +26,22 @@ sio = socketio.AsyncServer(
 )
 
 
-# @sio.on('connect')
-# async def connect(sid, environ):
-#     print('connect ', sid)
-
-# @sio.on('disconnect')
-# async def disconnect(sid):
-#     print('disconnect ', sid)
-
-# @sio.on('clip')
-# async def clip(sid, timestamp, blob):
-#     # create a file with the timestamp as the name
-#     # save the blob to the file
-#     # send the file to the model
-#     # send the result back to the frontend
-    
-#     with open(f'./{timestamp}.mp4', 'wb') as f:
-#         f.write(blob)
-#     print('clip ', timestamp)
-#     sio.emit('result', "Got it!")
 class ChatNamespace(socketio.AsyncNamespace):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.current_image = []
+        self.current_frame = None
+        self.room_id = None
+
     async def on_connect(self, sid, environ):
         room_id = sid
         print("Roomid", room_id)
         # user = authenticate(room_id) # Authenticate the user later
-        #if not user:
+        # if not user:
         #   await self.disconnect("no user found")
+        # else:
+        #     self.user = user
+        #     self.room_id = user.room_id
         self.room_id = room_id
         self.video_processor = AsyncVideoProcessor()
         self.find_obstacles = AsyncClarifaiImageRecognition()
@@ -61,30 +49,30 @@ class ChatNamespace(socketio.AsyncNamespace):
         print('Connected', sid)
 
 
-    def get_room_id(self, environ):
-        namespace = environ.get('PATH_INFO', '/').split('/')[2]
-        room_id = namespace.split('/')[-1]
-        print(room_id)
-        return room_id
-
 
     async def on_disconnect(self, sid):
         print('Disconnected', sid)
         await sio.leave_room(sid, self.room_id)
 
     async def on_clip(self, sid, timestamp, blob: bytes):
-        image_list = await self.video_processor.process_video(blob)
-        image_bytes_list = self.video_processor.convert_result_image_arrays_to_bytes(image_list)
+        image = await self.video_processor.process_video(blob)
+        image_byte = self.video_processor.convert_result_image_to_bytes(image)
+        finished_frame.send(instance=self, sender=self, image_byte=image_byte)
         print('clip ', timestamp)
-        await sio.emit('finished_frame', image_bytes_list[-1], room= self.room_id)
-        print("Done converting")
-        await asyncio.to_thread(self.find_obstacles.find_all_objects, [image_bytes_list[-1]])
+        await asyncio.sleep(2) # to stimulate running the image handling
+        # await asyncio.to_thread(self.find_obstacles.find_all_objects, image_byte)
         await sio.emit('result', "There's a car in front of you. Watch out", room=self.room_id)
 
     async def on_question(self, sid, question):
-        async def on_finished_frame(self, sid, image_bytes_list):
+        print(question)
+        @receiver(finished_frame)
+        def on_finished_frame(sender, instance, image_byte, **kwargs):
+            self.current_frame = image_byte
+        if self.current_frame:
             print("Frame received")
+        # await query_send_ai_message('question')
         await sio.emit('ai_reply', choice(MOCK_AI_RESPONSES), room= self.room_id)
+        self.current_frame = None
     
 sio.register_namespace(ChatNamespace('/'))
 socketio_app = socketio.ASGIApp(sio)

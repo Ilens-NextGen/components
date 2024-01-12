@@ -26,8 +26,16 @@ SECRET_KEY = 'django-insecure-5#=4(z6zrr1b+s$e!@q$6)34qwm^&cn_t5wh$0ugi09re^6@#-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'https://laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev']
-CORS_ALLOWED_ORIGINS = ['https://laughing-computing-machine-gj696v7xvxw2wpw6-1234.app.github.dev', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'localhost', '127.0.0.1',
+    'laughing-computing-machine-gj696v7xvxw2wpw6-8000.app.github.dev',
+    '8000-ilensnextgen-components-ay4frb3hdwy.ws-eu107.gitpod.io'
+]
+CORS_ALLOWED_ORIGINS = [
+    'laughing-computing-machine-gj696v7xvxw2wpw6-1234.app.github.dev',
+    'localhost', '127.0.0.1',
+    'https://1234-ilensnextgen-components-ay4frb3hdwy.ws-eu107.gitpod.io'
+]
 
 # Application definition
 
